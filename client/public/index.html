@@ -20,7 +20,7 @@
 
 <body>
     <dvi class="container-fluid">
-        <div id="login" class="section-border">
+        <div id="login" class="section-border container-fluid">
             <div id="login-panel" class="row">
                 <div class="col">
                     <h3>Logo</h3>
@@ -28,11 +28,11 @@
                 <div class="col">
                     <label class="form-label">
                         Username
-                        <input type="text" id="username" class="form-control" />
+                        <input type="text" id="username" class="form-control" value="john" />
                     </label>
                     <label class="form-label">
                         Password
-                        <input type="password" id="password" class="form-control" />
+                        <input type="password" id="password" class="form-control" value="123" />
                     </label>
                     <button id="login-btn" class="btn btn-primary">Login</button>
                 </div>
@@ -54,26 +54,46 @@
 
         </div>
 
-        <div id="welcome-message">
+        <div id="welcome-message" class="container-fluid">
             <p>Welcome to music website</p>
         </div>
 
-        <div id="song-list">
-            <h3>Song You May Interested</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Release Date</th>
-                        <th scope="col">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="songList">
+        <div id="login-content" style="display: none;">
+            <div id="song-list" class=" container-fluid border border-primary">
+                <h3>Song You May Interested</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Release Date</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="songList">
+    
+                    </tbody>
+    
+                </table>
+            </div>
+            
+            <div id="play-list-table" class=" container-fluid border border-primary">
+                <h3>Your Playlist</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Title</th>                        
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playlist">
+    
+                    </tbody>
+    
+                </table>    
+            </div>
 
-                </tbody>
-
-            </table>
         </div>
 
     </dvi>

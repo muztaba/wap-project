@@ -40,6 +40,7 @@ function loginHandler() {
 
 function loginAndLoadData(username, token) {
     document.getElementById('welcome-message').style.display = 'none';
+    document.getElementById('login-content').style.display = '';
 
     const loginPanel = document.getElementById('login-panel');
     loginPanel.style = 'display: none;';
@@ -50,6 +51,7 @@ function loginAndLoadData(username, token) {
     usernamePanel.innerText = username;
 
     loadAllSong();
+    getPlayList();
 }
 
 function logoutHandler() {
@@ -58,7 +60,7 @@ function logoutHandler() {
 }
 
 function loadAllSong() {
-    fetch('http://localhost:3000/songs')
+    fetch('http://localhost:3000/profile/songs')
         .then(res => res.json())
         .then(res => listTable(res.songlist))
         .catch(err => console.log(err));
@@ -68,7 +70,7 @@ function searchHandler() {
     let q = document.getElementById('search-input').value;
     console.log('search query ', q);
     q = q.trim();
-    fetch('http://localhost:3000/songs' + '?s=' + q)
+    fetch('http://localhost:3000/profile/songs' + '?s=' + q)
         .then(res => res.json())
         .then(res => {
             console.log('search query result ', res);
@@ -105,7 +107,7 @@ function addHandler(songlist) {
             let obj = getUser();
             console.log(obj);
 
-            fetch('http://localhost:3000/add-song', {
+            fetch('http://localhost:3000/profile/add-song', {
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -117,12 +119,79 @@ function addHandler(songlist) {
                 referrerPolicy: 'no-referrer',
                 body: JSON.stringify({ username: obj.username, songId: songId })
             }).then(res => res.json())
-                .then(res => console.log(res))
+                .then(res => {
+                    console.log('added song res ', res);
+                    if (res == 'already_added') {
+                        alert('Already Added');
+                    } else {
+                        getPlayList();
+                    }
+                })
                 .catch(err => console.log(err));
 
         }
 
     }
+}
+
+function getPlayList() {
+    fetch('http://localhost:3000/profile/get-playlist', {
+        headers: {
+            'username': getUser().username
+        },
+    }).then(res => res.json())
+        .then(res => {
+            songlist = res.songlist;
+            let rows = '';
+
+            for (let i = 0; i < songlist.length; i++) {
+                let row = '<tr> ';
+                row += '<th scope="row"> ' + (i + 1) + ' </th> ';
+                row += ' <td> ' + songlist[i].title + ' </td> ';
+                row += ` <td> 
+                <button data-songid="${songlist[i].id}" id="${'remove-song-' + songlist[i].id}">Remove</button> 
+                <button data-songid="${songlist[i].id}" id="${'play-song-' + songlist[i].id}">Play</button> 
+                </td>`;
+                rows += row;
+            }
+
+            const tableBody = document.getElementById('playlist');
+            tableBody.innerHTML = '';
+            tableBody.innerHTML = rows;
+
+            for (let i = 0; i < songlist.length; i++) {
+                const removeBtn = document.getElementById('remove-song-' + songlist[i].id);
+                
+                // remove song from playlist
+                removeBtn.onclick = function () {
+                    const songId = removeBtn.dataset.songid;
+                    let obj = getUser();
+                    console.log(obj);
+
+                    fetch('http://localhost:3000/profile/remove-song', {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        credentials: 'same-origin',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'username': getUser().username
+                        },
+                        redirect: 'follow',
+                        referrerPolicy: 'no-referrer',
+                        body: JSON.stringify({ username: obj.username, songId: songId })
+                    }).then(res => res.json())
+                        .then(res => {
+                            document.getElementById('playlist').innerHTML = '';
+                            getPlayList();
+                        })
+                        .catch(err => console.log(err));
+
+                }
+
+            }
+        })
+        .catch(err => console.log(err));
 }
 
 function setUser(obj) {

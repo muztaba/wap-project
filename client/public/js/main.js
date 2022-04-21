@@ -1,10 +1,10 @@
 window.onload = function() {
 
-    // let user = getUser();
-    // console.log(user);
-    // if (user != undefined || user != null) {
-    //     loginAndLoadData(user.username, user.token);
-    // }
+    let user = getUser();
+    console.log(user);
+    if (user != undefined || user != null) {
+        loginAndLoadData(user.username, user.token);
+    }
 
     // login
     const loginBtn = document.getElementById('login-btn');   

@@ -25,6 +25,9 @@ module.exports = class Song {
     static findById(songId) {
         console.log('song arra ', songs);
         console.log('songid ', songId);
-        return songs.find(it => it.id === songId);
+        return songs.find(it => {
+            console.log('song id ', it.id == songId);
+            return it.id == songId;
+        });
     }
 }

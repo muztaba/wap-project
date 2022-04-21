@@ -4,8 +4,19 @@ const playlistController = require('../controller/playlistController');
 
 const router = express.Router();
 
-router.get('/songs', playlistController.songs)
+router.all('/profile/*', (req, res, next) =>{
 
-router.post('/add-song', playlistController.addSong);
+    next();
+});
+
+router.get('/profile/songs', playlistController.songs);
+
+router.get('/profile/get-playlist', playlistController.getPlaylist);
+
+router.post('/profile/add-song', playlistController.addSong);
+
+router.post('/profile/remove-song', playlistController.removeSong);
+
+
 
 module.exports = router;
