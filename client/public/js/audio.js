@@ -131,14 +131,23 @@ function getTimeCodeFromNum(num) {
 //toggle between the shuffle buttons
 shuffleBtn.addEventListener("click", () => {
   shuffleState = "random";
+  shuffleBtn.style.background = 'green';
+  retweetBtn.style.background = '';
+  repeatBtn.style.background = '';
 });
 
 retweetBtn.addEventListener("click", () => {
   shuffleState = "retweet";
+  shuffleBtn.style.background = '';
+  retweetBtn.style.background = 'green';
+  repeatBtn.style.background = '';
 });
 
 repeatBtn.addEventListener("click", () => {
   shuffleState = "repeat";
+  shuffleBtn.style.background = '';
+  retweetBtn.style.background = '';
+  repeatBtn.style.background = 'green';
 });
 
 //click volume slider to change volume
@@ -185,28 +194,28 @@ function playNextSong() {
   console.log('suffleState ', shuffleState);
   if (shuffleState == "random") {
 
-    while(true) {
-      if (rnd_idx >= song_track.length) {
-        rnd_idx = 0;
-        rnd_track = [];
-        for (let i = 0; i < song_track.length; i++) {
-          rnd_track.push(i);
-        }
-        rnd_track = _.shuffle(rnd_track);
-      }
-  
-      if (rnd_track.length === 0) {
-        for (let i = 0; i < song_track.length; i++) {
-          rnd_track.push(i);
-        }
-        rnd_track = _.shuffle(rnd_track);
-      }
-  
-      console.log('rnd_idx ', rnd_idx, ' rnd_track ', rnd_track);
-      if (rnd_track[rnd_idx] != current_song_track) {
-        break;
+    if (rnd_idx >= song_track.length) {
+      rnd_idx = 0;
+      rnd_track = [];
+      for (let i = 0; i < song_track.length; i++) {
+        rnd_track.push(i);
       }
       rnd_track = _.shuffle(rnd_track);
+    }
+
+    if (rnd_track.length === 0) {
+      for (let i = 0; i < song_track.length; i++) {
+        rnd_track.push(i);
+      }
+      rnd_track = _.shuffle(rnd_track);
+    }
+
+    console.log('rnd_idx ', rnd_idx, ' rnd_track ', rnd_track);
+
+    rnd_track = _.shuffle(rnd_track);
+
+    if (rnd_track[rnd_idx] === current_song_track) {
+      rnd_idx = ++rnd_idx % rnd_track.length;
     }
 
     current_song_track = rnd_track[rnd_idx];
@@ -243,26 +252,3 @@ backwardBtn.addEventListener("click", () => {
   audio.src = song_track[current_song_track].url;
   audio.play();
 });
-
-
-function removeFromCurrentPlayer(songId) {
-  fetch("http://localhost:5500/users/removeSong/" + songId, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json; charset=UTF-8",
-    },
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      if (res.url == audio.src) {
-        audio.currentTime = 0;
-        document.getElementById("song-title").innerHTML = "-";
-        audioPlayer.querySelector(".progress").style.width = 0;
-        audioPlayer.querySelector(".time .length").textContent = getTimeCodeFromNum(0);
-        current_song_track = -1;
-        audio.src = "";
-      }
-      song_track = song_track.filter((x) => x.songId != songId);
-      console.log(song_track);
-    });
-}
