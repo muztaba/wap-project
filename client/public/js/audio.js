@@ -1,5 +1,4 @@
 const audioPlayer = document.querySelector(".audio-player");
-console.log('audioPlayer == ', audioPlayer);
 
 // var song_track = [
 //   {
@@ -27,6 +26,8 @@ let shuffleState = "random";
 const playBtn = document.getElementById("play-icon");
 const stopBtn = document.getElementById("stop-icon");
 const shuffleBtn = document.getElementById("shuffle-icon");
+const retweetBtn = document.getElementById("retweet-icon");
+const repeatBtn = document.getElementById("repeat-icon");
 const volumeSlider = document.getElementById("volume-slider");
 const volumePercentage = document.getElementById("volume-percentage");
 const timeline = audioPlayer.querySelector(".timeline");
@@ -36,6 +37,8 @@ let totalDuration = 0;
 
 function loadSongsInPlayer(data) {
   song_track = [];
+  rnd_track = [];
+  rnd_idx = 0;
   data.forEach((x) => {
     let o = {
       songId: x.id,
@@ -43,7 +46,8 @@ function loadSongsInPlayer(data) {
       url: x.url,
     };
     // console.log('loadsongsinplayer ', o);
-    song_track.push(o); }
+    song_track.push(o);
+  }
   );
 }
 
@@ -75,8 +79,8 @@ playBtn.addEventListener("click", () => {
   if (song_track.length == 0) {
     return;
   }
-  if(current_song_track<0 && song_track.length > 0){
-    current_song_track=0;
+  if (current_song_track < 0 && song_track.length > 0) {
+    current_song_track = 0;
     audio.src = song_track[current_song_track].url;
     document.getElementById("song-title").innerHTML =
       song_track[current_song_track].title;
@@ -126,16 +130,15 @@ function getTimeCodeFromNum(num) {
 
 //toggle between the shuffle buttons
 shuffleBtn.addEventListener("click", () => {
-  if (shuffleState === "random") {
-    shuffleBtn.setAttribute("class", "audio-btn fa fa-retweet fa-2x");
-    shuffleState = "retweet";
-  } else if (shuffleState === "retweet") {
-    shuffleBtn.setAttribute("class", "audio-btn fa fa-repeat fa-2x");
-    shuffleState = "repeat";
-  } else {
-    shuffleBtn.setAttribute("class", "audio-btn fa fa-random fa-2x");
-    shuffleState = "random";
-  }
+  shuffleState = "random";
+});
+
+retweetBtn.addEventListener("click", () => {
+  shuffleState = "retweet";
+});
+
+repeatBtn.addEventListener("click", () => {
+  shuffleState = "repeat";
 });
 
 //click volume slider to change volume
@@ -179,11 +182,37 @@ setInterval(() => {
 //retweet means going via entire list in circular
 //repeat means playing song again and again
 function playNextSong() {
+  console.log('suffleState ', shuffleState);
   if (shuffleState == "random") {
-    current_song_track = Math.round(Math.random() * song_track.length - 1);
-    if (current_song_track < 0) {
-      current_song_track = 0;
+
+    while(true) {
+      if (rnd_idx >= song_track.length) {
+        rnd_idx = 0;
+        rnd_track = [];
+        for (let i = 0; i < song_track.length; i++) {
+          rnd_track.push(i);
+        }
+        rnd_track = _.shuffle(rnd_track);
+      }
+  
+      if (rnd_track.length === 0) {
+        for (let i = 0; i < song_track.length; i++) {
+          rnd_track.push(i);
+        }
+        rnd_track = _.shuffle(rnd_track);
+      }
+  
+      console.log('rnd_idx ', rnd_idx, ' rnd_track ', rnd_track);
+      if (rnd_track[rnd_idx] != current_song_track) {
+        break;
+      }
+      rnd_track = _.shuffle(rnd_track);
     }
+
+    current_song_track = rnd_track[rnd_idx];
+    rnd_idx++;
+
+
   } else if (shuffleState == "retweet") {
     if (current_song_track == song_track.length - 1) {
       current_song_track = 0;
@@ -225,12 +254,12 @@ function removeFromCurrentPlayer(songId) {
   })
     .then((res) => res.json())
     .then((res) => {
-      if (res.url == audio.src) {        
+      if (res.url == audio.src) {
         audio.currentTime = 0;
         document.getElementById("song-title").innerHTML = "-";
-        audioPlayer.querySelector(".progress").style.width=0;
+        audioPlayer.querySelector(".progress").style.width = 0;
         audioPlayer.querySelector(".time .length").textContent = getTimeCodeFromNum(0);
-        current_song_track=-1;
+        current_song_track = -1;
         audio.src = "";
       }
       song_track = song_track.filter((x) => x.songId != songId);
