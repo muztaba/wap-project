@@ -73,13 +73,24 @@ function searchHandler() {
     fetch('http://localhost:3000/profile/songs' + '?s=' + q)
         .then(res => res.json())
         .then(res => {
-            console.log('search query result ', res);
-            listTable(res.songlist)
+            console.log('search query result ', res);            
+            listTable(res.songlist, q);
         })
         .catch(err => console.log(err));
 }
 
-function listTable(songlist) {
+function listTable(songlist, searchText) {
+
+    if (searchText) {
+        document.getElementById('song-list-text').style.display = 'none';
+        const t = document.getElementById('song-search-text');
+        t.style.display = '';
+        t.innerHTML = `Result of "${searchText}"`;
+    } else {
+        document.getElementById('song-list-text').style.display = '';
+        document.getElementById('song-search-text').style.display = 'none';
+    }
+
     let rows = '';
 
     for (let i = 0; i < songlist.length; i++) {
@@ -87,7 +98,7 @@ function listTable(songlist) {
         row += '<th scope="row"> ' + (i + 1) + ' </th> ';
         row += ' <td> ' + songlist[i].title + ' </td> ';
         row += ' <td> ' + songlist[i].releaseDate + ' </td> '
-        row += ` <td> <button data-songid="${songlist[i].id}" id="${'add-' + songlist[i].id}">Add</button> `;
+        row += ` <td> <button class="addbtn" data-songid="${songlist[i].id}" id="${'add-' + songlist[i].id}"><i class="fa fa-plus" aria-hidden="true"></i></button> `;
         rows += row;
     }
 
@@ -149,8 +160,8 @@ function getPlayList() {
                 row += '<th scope="row"> ' + (i + 1) + ' </th> ';
                 row += ' <td> ' + songlist[i].title + ' </td> ';
                 row += ` <td> 
-                <button data-songid="${songlist[i].id}" id="${'remove-song-' + songlist[i].id}">Remove</button> 
-                <button data-songid="${songlist[i].id}" id="${'play-song-' + songlist[i].id}">Play</button> 
+                <button class="addbtn" data-songid="${songlist[i].id}" id="${'remove-song-' + songlist[i].id}"> <i class="fa fa-minus" aria-hidden="true" style="padding: 15px;"></i></button> 
+                <button class="addbtn" data-songid="${songlist[i].id}" id="${'play-song-' + songlist[i].id}"><i class="fa fa-play"></i></button> 
                 </td>`;
                 rows += row;
             }
@@ -158,10 +169,10 @@ function getPlayList() {
             const tableBody = document.getElementById('playlist');
             tableBody.innerHTML = '';
             tableBody.innerHTML = rows;
-
+            console.log('song array === ', songlist);
             for (let i = 0; i < songlist.length; i++) {
                 const removeBtn = document.getElementById('remove-song-' + songlist[i].id);
-                
+
                 // remove song from playlist
                 removeBtn.onclick = function () {
                     const songId = removeBtn.dataset.songid;
@@ -189,10 +200,19 @@ function getPlayList() {
 
                 }
 
+                const playBtn = document.getElementById('play-song-' + songlist[i].id);
+                playBtn.onclick = function () {
+                    const songId = removeBtn.dataset.songid;
+                    startPlayingFromHere(songId);
+                };
+
             }
+
+            loadSongsInPlayer(songlist);
         })
         .catch(err => console.log(err));
 }
+
 
 function setUser(obj) {
     sessionStorage.setItem('m_user', JSON.stringify(obj));

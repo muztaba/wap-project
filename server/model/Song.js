@@ -1,10 +1,11 @@
 let songs = [];
 
 module.exports = class Song {
-    constructor(id, title, releaseDate) {
+    constructor(id, title, releaseDate, url) {
         this.id = id;
         this.title = title;
         this.releaseDate = releaseDate;
+        this.url = url;
     }
 
     save() {
